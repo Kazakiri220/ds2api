@@ -101,6 +101,7 @@ func TestHandleVercelStreamPrepareAppliesCurrentInputFile(t *testing.T) {
 	h := &Handler{
 		Store: mockOpenAIConfig{
 			currentInputEnabled: true,
+			currentInputMode:    "upload_file",
 		},
 		Auth: streamStatusAuthStub{},
 		DS:   ds,
@@ -320,7 +321,7 @@ func TestHandleVercelStreamPrepareUploadsToolsSeparately(t *testing.T) {
 
 	ds := &inlineUploadDSStub{}
 	h := &Handler{
-		Store: mockOpenAIConfig{currentInputEnabled: true},
+		Store: mockOpenAIConfig{currentInputEnabled: true, currentInputMode: "upload_file"},
 		Auth:  streamStatusAuthStub{},
 		DS:    ds,
 	}
@@ -394,6 +395,7 @@ func TestHandleVercelStreamPrepareMapsCurrentInputFileManagedAuthFailureTo401(t 
 	h := &Handler{
 		Store: mockOpenAIConfig{
 			currentInputEnabled: true,
+			currentInputMode:    "upload_file",
 		},
 		Auth: streamStatusManagedAuthStub{},
 		DS:   ds,
@@ -444,7 +446,7 @@ func TestHandleVercelStreamSwitchReuploadsCurrentInputFile(t *testing.T) {
 
 	ds := &inlineUploadDSStub{}
 	h := &Handler{
-		Store: mockOpenAIConfig{currentInputEnabled: true},
+		Store: mockOpenAIConfig{currentInputEnabled: true, currentInputMode: "upload_file"},
 		Auth:  resolver,
 		DS:    ds,
 	}

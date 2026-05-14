@@ -143,6 +143,9 @@ func parseSettingsUpdateRequest(req map[string]any) (*config.AdminConfig, *confi
 			enabled := boolFrom(v)
 			cfg.Enabled = &enabled
 		}
+		if v, exists := raw["mode"]; exists {
+			cfg.Mode = config.NormalizeCurrentInputFileMode(fmt.Sprintf("%v", v))
+		}
 		if v, exists := raw["min_chars"]; exists {
 			n := intFrom(v)
 			if err := config.ValidateIntRange("current_input_file.min_chars", n, 0, 100000000, true); err != nil {

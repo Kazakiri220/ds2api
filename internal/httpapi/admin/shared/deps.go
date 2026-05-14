@@ -34,6 +34,7 @@ type ConfigStore interface {
 	RuntimeTokenRefreshIntervalHours() int
 	AutoDeleteMode() string
 	CurrentInputFileEnabled() bool
+	CurrentInputFileMode() string
 	CurrentInputFileMinChars() int
 	ThinkingInjectionEnabled() bool
 	ThinkingInjectionPrompt() string

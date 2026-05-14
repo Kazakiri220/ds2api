@@ -48,6 +48,7 @@
   },
   "current_input_file": {
     "enabled": true,
+    "mode": "inline_text",
     "min_chars": 0
   },
   "thinking_injection": {

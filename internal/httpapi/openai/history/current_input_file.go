@@ -22,6 +22,7 @@ const (
 
 type CurrentInputConfigReader interface {
 	CurrentInputFileEnabled() bool
+	CurrentInputFileMode() string
 	CurrentInputFileMinChars() int
 }
 
@@ -36,6 +37,9 @@ type Service struct {
 
 func (s Service) ApplyCurrentInputFile(ctx context.Context, a *auth.RequestAuth, stdReq promptcompat.StandardRequest) (promptcompat.StandardRequest, error) {
 	if stdReq.CurrentInputFileApplied || s.DS == nil || s.Store == nil || a == nil || !s.Store.CurrentInputFileEnabled() {
+		return stdReq, nil
+	}
+	if config.NormalizeCurrentInputFileMode(s.Store.CurrentInputFileMode()) != config.CurrentInputFileModeUploadFile {
 		return stdReq, nil
 	}
 	threshold := s.Store.CurrentInputFileMinChars()

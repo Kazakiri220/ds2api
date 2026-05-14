@@ -334,8 +334,9 @@ go run ./cmd/ds2api
 - `model_aliases`：OpenAI / Claude / Gemini 共用的模型 alias 映射。
 - `runtime`：账号并发、队列与 token 刷新策略，可通过 Admin Settings 热更新。
 - `auto_delete.mode`：请求结束后的远端会话清理策略，支持 `none` / `single` / `all`。
-- `current_input_file`：全局生效的上下文拆分上传策略；默认开启且阈值为 `0`，触发时将完整上下文合并上传为 `DS2API_HISTORY.txt` 上下文文件。
-- 如果关闭 `current_input_file`，请求会直接透传，不上传拆分上下文文件。
+- `current_input_file`：全局生效的上下文传输策略；默认 `enabled=true` 且 `mode=inline_text`，完整上下文会作为最终 prompt 文字直接发送到 DeepSeek completion。
+- 如需旧的上下文文件上传行为，可配置 `mode=upload_file`；此时最新 user 文本长度达到 `min_chars`（默认 `0`）才会上传 `DS2API_HISTORY.txt` / `DS2API_TOOLS.txt` 并把文件 ID 放入 `ref_file_ids`。
+- 如果关闭 `current_input_file.enabled=false`，请求会直接透传，不读取 `min_chars`，也不会上传自动上下文文件。
 - `thinking_injection`：默认开启；在最新 user 消息末尾追加思考增强提示词，提高高强度推理与工具调用前的思考稳定性；`prompt` 留空时使用内置默认提示词。
 
 环境变量完整列表见 [部署指南](docs/DEPLOY.md)，接口鉴权规则见 [API.md](API.md#鉴权规则)。

@@ -15,6 +15,7 @@ type claudeProxyStoreStub struct {
 func (s claudeProxyStoreStub) ModelAliases() map[string]string { return s.aliases }
 
 func (claudeProxyStoreStub) CurrentInputFileEnabled() bool { return true }
+func (claudeProxyStoreStub) CurrentInputFileMode() string  { return "upload_file" }
 func (claudeProxyStoreStub) CurrentInputFileMinChars() int { return 0 }
 
 type openAIProxyStub struct {

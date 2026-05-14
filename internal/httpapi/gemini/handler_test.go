@@ -18,10 +18,13 @@ import (
 	dsclient "ds2api/internal/deepseek/client"
 )
 
-type testGeminiConfig struct{}
+type testGeminiConfig struct {
+	currentInputMode string
+}
 
 func (testGeminiConfig) ModelAliases() map[string]string { return nil }
 func (testGeminiConfig) CurrentInputFileEnabled() bool   { return true }
+func (c testGeminiConfig) CurrentInputFileMode() string  { return c.currentInputMode }
 func (testGeminiConfig) CurrentInputFileMinChars() int   { return 0 }
 
 type testGeminiAuth struct {
@@ -146,7 +149,7 @@ func TestGeminiDirectAppliesCurrentInputFile(t *testing.T) {
 	}
 	historyStore := chathistory.New(filepath.Join(t.TempDir(), "history.json"))
 	h := &Handler{
-		Store:       testGeminiConfig{},
+		Store:       testGeminiConfig{currentInputMode: "upload_file"},
 		Auth:        testGeminiAuth{},
 		DS:          ds,
 		ChatHistory: historyStore,
@@ -210,7 +213,7 @@ func TestGeminiCurrentInputFileUploadsToolsSeparately(t *testing.T) {
 		resp: makeGeminiUpstreamResponse(`data: {"p":"response/content","v":"ok"}`),
 	}
 	h := &Handler{
-		Store: testGeminiConfig{},
+		Store: testGeminiConfig{currentInputMode: "upload_file"},
 		Auth:  testGeminiAuth{},
 		DS:    ds,
 	}

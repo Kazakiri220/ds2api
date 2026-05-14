@@ -15,6 +15,7 @@ type mockOpenAIConfig struct {
 	responsesTTL        int
 	embedProv           string
 	currentInputEnabled bool
+	currentInputMode    string
 	currentInputMin     int
 	thinkingInjection   *bool
 	thinkingPrompt      string
@@ -33,6 +34,7 @@ func (m mockOpenAIConfig) AutoDeleteMode() string {
 }
 func (m mockOpenAIConfig) AutoDeleteSessions() bool      { return false }
 func (m mockOpenAIConfig) CurrentInputFileEnabled() bool { return m.currentInputEnabled }
+func (m mockOpenAIConfig) CurrentInputFileMode() string  { return m.currentInputMode }
 func (m mockOpenAIConfig) CurrentInputFileMinChars() int {
 	return m.currentInputMin
 }

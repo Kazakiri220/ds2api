@@ -24,6 +24,7 @@ type streamStatusClaudeStoreStub struct{}
 func (streamStatusClaudeStoreStub) ModelAliases() map[string]string { return nil }
 
 func (streamStatusClaudeStoreStub) CurrentInputFileEnabled() bool { return true }
+func (streamStatusClaudeStoreStub) CurrentInputFileMode() string  { return "upload_file" }
 func (streamStatusClaudeStoreStub) CurrentInputFileMinChars() int { return 0 }
 
 func captureClaudeStatusMiddleware(statuses *[]int) func(http.Handler) http.Handler {

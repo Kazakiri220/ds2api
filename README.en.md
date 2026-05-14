@@ -322,8 +322,9 @@ Common fields:
 - `model_aliases`: one shared alias map for OpenAI / Claude / Gemini model names.
 - `runtime`: account concurrency, queueing, and token refresh behavior, hot-reloadable via Admin Settings.
 - `auto_delete.mode`: remote session cleanup after each request, supporting `none` / `single` / `all`.
-- `current_input_file`: the global context split/upload mode; it is enabled by default and uploads the full context as a `DS2API_HISTORY.txt` context file once the character threshold is reached.
-- If you turn off `current_input_file`, requests pass through directly without uploading any split context file.
+- `current_input_file`: the global context transfer policy. It defaults to `enabled=true` and `mode=inline_text`, so the full context is sent directly as final prompt text to DeepSeek completion.
+- To keep the previous context-file upload behavior, set `mode=upload_file`; in that mode, once the latest user text reaches `min_chars` (default `0`), DS2API uploads `DS2API_HISTORY.txt` / `DS2API_TOOLS.txt` and places their file IDs in `ref_file_ids`.
+- If `current_input_file.enabled=false`, requests pass through directly, `min_chars` is ignored, and no automatic context files are uploaded.
 
 For the full environment variable list, see [docs/DEPLOY.en.md](docs/DEPLOY.en.md). For auth behavior, see [API.en.md](API.en.md#authentication).
 

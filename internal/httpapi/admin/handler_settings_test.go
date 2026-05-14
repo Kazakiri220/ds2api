@@ -64,6 +64,9 @@ func TestGetSettingsIncludesCurrentInputFileDefaults(t *testing.T) {
 	if got := intFrom(currentInputFile["min_chars"]); got != 0 {
 		t.Fatalf("expected current_input_file.min_chars=0, got %d body=%v", got, body)
 	}
+	if got, _ := currentInputFile["mode"].(string); got != "inline_text" {
+		t.Fatalf("expected current_input_file.mode=inline_text, got %q body=%v", got, body)
+	}
 	thinkingInjection, _ := body["thinking_injection"].(map[string]any)
 	if got := boolFrom(thinkingInjection["enabled"]); !got {
 		t.Fatalf("expected thinking_injection.enabled=true, body=%v", body)
@@ -188,6 +191,7 @@ func TestUpdateSettingsCurrentInputFile(t *testing.T) {
 	payload := map[string]any{
 		"current_input_file": map[string]any{
 			"enabled":   true,
+			"mode":      "upload_file",
 			"min_chars": 12345,
 		},
 	}
@@ -205,8 +209,14 @@ func TestUpdateSettingsCurrentInputFile(t *testing.T) {
 	if snap.CurrentInputFile.MinChars != 12345 {
 		t.Fatalf("expected current_input_file.min_chars=12345, got %#v", snap.CurrentInputFile)
 	}
+	if snap.CurrentInputFile.Mode != "upload_file" {
+		t.Fatalf("expected current_input_file.mode=upload_file, got %#v", snap.CurrentInputFile)
+	}
 	if !h.Store.CurrentInputFileEnabled() {
 		t.Fatal("expected current input file accessor to stay enabled")
+	}
+	if got := h.Store.CurrentInputFileMode(); got != "upload_file" {
+		t.Fatalf("expected current input file mode accessor=upload_file, got %q", got)
 	}
 }
 
@@ -234,7 +244,7 @@ func TestUpdateSettingsCurrentInputFilePartialUpdatePreservesEnabled(t *testing.
 }
 
 func TestUpdateSettingsCurrentInputFilePartialUpdatePreservesMinChars(t *testing.T) {
-	h := newAdminTestHandler(t, `{"keys":["k1"],"current_input_file":{"enabled":false,"min_chars":777}}`)
+	h := newAdminTestHandler(t, `{"keys":["k1"],"current_input_file":{"enabled":false,"mode":"upload_file","min_chars":777}}`)
 	payload := map[string]any{
 		"current_input_file": map[string]any{
 			"enabled": true,
@@ -253,6 +263,48 @@ func TestUpdateSettingsCurrentInputFilePartialUpdatePreservesMinChars(t *testing
 	}
 	if snap.CurrentInputFile.MinChars != 777 {
 		t.Fatalf("expected current_input_file.min_chars to remain 777, got %#v", snap.CurrentInputFile)
+	}
+	if snap.CurrentInputFile.Mode != "upload_file" {
+		t.Fatalf("expected current_input_file.mode to remain upload_file, got %#v", snap.CurrentInputFile)
+	}
+}
+
+func TestUpdateSettingsCurrentInputFilePartialUpdatePreservesMode(t *testing.T) {
+	h := newAdminTestHandler(t, `{"keys":["k1"],"current_input_file":{"enabled":true,"mode":"upload_file","min_chars":777}}`)
+	payload := map[string]any{
+		"current_input_file": map[string]any{
+			"min_chars": 5000,
+		},
+	}
+	b, _ := json.Marshal(payload)
+	req := httptest.NewRequest(http.MethodPut, "/admin/settings", bytes.NewReader(b))
+	rec := httptest.NewRecorder()
+	h.updateSettings(rec, req)
+	if rec.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d body=%s", rec.Code, rec.Body.String())
+	}
+	snap := h.Store.Snapshot()
+	if snap.CurrentInputFile.Mode != "upload_file" {
+		t.Fatalf("expected current_input_file.mode to remain upload_file, got %#v", snap.CurrentInputFile)
+	}
+}
+
+func TestUpdateSettingsCurrentInputFileRejectsInvalidMode(t *testing.T) {
+	h := newAdminTestHandler(t, `{"keys":["k1"]}`)
+	payload := map[string]any{
+		"current_input_file": map[string]any{
+			"mode": "auto_upload",
+		},
+	}
+	b, _ := json.Marshal(payload)
+	req := httptest.NewRequest(http.MethodPut, "/admin/settings", bytes.NewReader(b))
+	rec := httptest.NewRecorder()
+	h.updateSettings(rec, req)
+	if rec.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400, got %d body=%s", rec.Code, rec.Body.String())
+	}
+	if !bytes.Contains(rec.Body.Bytes(), []byte("current_input_file.mode")) {
+		t.Fatalf("expected mode validation detail, got %s", rec.Body.String())
 	}
 }
 

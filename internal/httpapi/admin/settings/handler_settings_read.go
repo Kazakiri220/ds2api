@@ -32,6 +32,7 @@ func (h *Handler) getSettings(w http.ResponseWriter, _ *http.Request) {
 		"auto_delete": snap.AutoDelete,
 		"current_input_file": map[string]any{
 			"enabled":   h.Store.CurrentInputFileEnabled(),
+			"mode":      h.Store.CurrentInputFileMode(),
 			"min_chars": h.Store.CurrentInputFileMinChars(),
 		},
 		"thinking_injection": map[string]any{

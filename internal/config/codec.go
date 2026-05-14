@@ -42,7 +42,7 @@ func (c Config) MarshalJSON() ([]byte, error) {
 		m["embeddings"] = c.Embeddings
 	}
 	m["auto_delete"] = c.AutoDelete
-	if c.CurrentInputFile.Enabled != nil || c.CurrentInputFile.MinChars != 0 {
+	if c.CurrentInputFile.Enabled != nil || strings.TrimSpace(c.CurrentInputFile.Mode) != "" || c.CurrentInputFile.MinChars != 0 {
 		m["current_input_file"] = c.CurrentInputFile
 	}
 	if c.ThinkingInjection.Enabled != nil || strings.TrimSpace(c.ThinkingInjection.Prompt) != "" {
@@ -165,6 +165,7 @@ func (c Config) Clone() Config {
 		AutoDelete:   c.AutoDelete,
 		CurrentInputFile: CurrentInputFileConfig{
 			Enabled:  cloneBoolPtr(c.CurrentInputFile.Enabled),
+			Mode:     c.CurrentInputFile.Mode,
 			MinChars: c.CurrentInputFile.MinChars,
 		},
 		ThinkingInjection: ThinkingInjectionConfig{

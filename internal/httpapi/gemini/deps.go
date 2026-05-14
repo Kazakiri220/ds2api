@@ -24,6 +24,7 @@ type DeepSeekCaller interface {
 type ConfigReader interface {
 	ModelAliases() map[string]string
 	CurrentInputFileEnabled() bool
+	CurrentInputFileMode() string
 	CurrentInputFileMinChars() int
 }
 

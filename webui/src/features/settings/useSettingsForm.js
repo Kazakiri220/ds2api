@@ -16,7 +16,7 @@ const DEFAULT_FORM = {
     responses: { store_ttl_seconds: 900 },
     embeddings: { provider: '' },
     auto_delete: { mode: 'none' },
-    current_input_file: { enabled: true, min_chars: 0 },
+    current_input_file: { enabled: true, mode: 'inline_text', min_chars: 0 },
     thinking_injection: { enabled: true, prompt: '', default_prompt: '' },
     model_aliases_text: '{}',
 }
@@ -49,6 +49,14 @@ function normalizeAutoDeleteMode(raw) {
     return 'none'
 }
 
+function normalizeCurrentInputFileMode(raw) {
+    const mode = String(raw || '').trim().toLowerCase()
+    if (mode === 'upload_file') {
+        return 'upload_file'
+    }
+    return 'inline_text'
+}
+
 function fromServerForm(data) {
     const currentInputFileEnabled = data.current_input_file?.enabled ?? true
     return {
@@ -70,6 +78,7 @@ function fromServerForm(data) {
         },
         current_input_file: {
             enabled: currentInputFileEnabled,
+            mode: normalizeCurrentInputFileMode(data.current_input_file?.mode),
             min_chars: Number(data.current_input_file?.min_chars ?? 0),
         },
         thinking_injection: {
@@ -96,6 +105,7 @@ function toServerPayload(form) {
         auto_delete: { mode: normalizeAutoDeleteMode(form.auto_delete) },
         current_input_file: {
             enabled: currentInputFileEnabled,
+            mode: normalizeCurrentInputFileMode(form.current_input_file?.mode),
             min_chars: Number(form.current_input_file?.min_chars ?? 0),
         },
         thinking_injection: {

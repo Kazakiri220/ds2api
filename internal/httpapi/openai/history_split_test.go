@@ -97,6 +97,7 @@ func TestApplyCurrentInputFileSkipsShortInputWhenThresholdNotReached(t *testing.
 	h := &openAITestSurface{
 		Store: mockOpenAIConfig{
 			currentInputEnabled: true,
+			currentInputMode:    "upload_file",
 			currentInputMin:     10,
 		},
 		DS: ds,
@@ -189,6 +190,8 @@ func TestApplyCurrentInputFileDisabledPassThrough(t *testing.T) {
 	h := &openAITestSurface{
 		Store: mockOpenAIConfig{
 			currentInputEnabled: false,
+			currentInputMode:    "upload_file",
+			currentInputMin:     1,
 		},
 		DS: ds,
 	}
@@ -206,7 +209,7 @@ func TestApplyCurrentInputFileDisabledPassThrough(t *testing.T) {
 		t.Fatalf("apply current input file failed: %v", err)
 	}
 	if len(ds.uploadCalls) != 0 {
-		t.Fatalf("expected no uploads when both split modes are disabled, got %d", len(ds.uploadCalls))
+		t.Fatalf("expected no uploads when current_input_file.enabled=false, got %d", len(ds.uploadCalls))
 	}
 	if out.CurrentInputFileApplied || out.HistoryText != "" {
 		t.Fatalf("expected direct pass-through, got current_input=%v history=%q", out.CurrentInputFileApplied, out.HistoryText)
@@ -216,11 +219,47 @@ func TestApplyCurrentInputFileDisabledPassThrough(t *testing.T) {
 	}
 }
 
+func TestApplyCurrentInputFileDefaultInlineTextDoesNotUpload(t *testing.T) {
+	ds := &inlineUploadDSStub{}
+	h := &openAITestSurface{
+		Store: mockOpenAIConfig{
+			currentInputEnabled: true,
+		},
+		DS: ds,
+	}
+	req := map[string]any{
+		"model":    "deepseek-v4-vision",
+		"messages": historySplitTestMessages(),
+	}
+	stdReq, err := promptcompat.NormalizeOpenAIChatRequest(h.Store, req, "")
+	if err != nil {
+		t.Fatalf("normalize failed: %v", err)
+	}
+
+	out, err := h.applyCurrentInputFile(context.Background(), &auth.RequestAuth{DeepSeekToken: "token"}, stdReq)
+	if err != nil {
+		t.Fatalf("apply current input file failed: %v", err)
+	}
+	if len(ds.uploadCalls) != 0 {
+		t.Fatalf("expected inline_text mode to avoid DS2API_HISTORY.txt uploads, got %d", len(ds.uploadCalls))
+	}
+	if out.CurrentInputFileApplied || out.HistoryText != "" || len(out.RefFileIDs) != 0 {
+		t.Fatalf("expected inline_text mode to leave current-input file state empty, got applied=%v history=%q refs=%#v", out.CurrentInputFileApplied, out.HistoryText, out.RefFileIDs)
+	}
+	if !strings.Contains(out.FinalPrompt, "first user turn") || !strings.Contains(out.FinalPrompt, "latest user turn") {
+		t.Fatalf("expected full prompt context to remain inline, got %s", out.FinalPrompt)
+	}
+	if strings.Contains(out.FinalPrompt, "Continue from the latest state in the attached DS2API_HISTORY.txt context.") {
+		t.Fatalf("did not expect DS2API_HISTORY.txt continuation prompt in inline_text mode, got %s", out.FinalPrompt)
+	}
+}
+
 func TestApplyCurrentInputFileUploadsFirstTurnWithNumberedHistoryTranscript(t *testing.T) {
 	ds := &inlineUploadDSStub{}
 	h := &openAITestSurface{
 		Store: mockOpenAIConfig{
 			currentInputEnabled: true,
+			currentInputMode:    "upload_file",
 			currentInputMin:     10,
 			thinkingInjection:   boolPtr(true),
 		},
@@ -290,6 +329,7 @@ func TestApplyCurrentInputFilePreservesFullContextPromptForTokenCounting(t *test
 	h := &openAITestSurface{
 		Store: mockOpenAIConfig{
 			currentInputEnabled: true,
+			currentInputMode:    "upload_file",
 			currentInputMin:     0,
 			thinkingInjection:   boolPtr(true),
 		},
@@ -335,6 +375,7 @@ func TestApplyCurrentInputFileUploadsFullContextFile(t *testing.T) {
 	h := &openAITestSurface{
 		Store: mockOpenAIConfig{
 			currentInputEnabled: true,
+			currentInputMode:    "upload_file",
 			currentInputMin:     0,
 			thinkingInjection:   boolPtr(true),
 		},
@@ -385,6 +426,7 @@ func TestApplyCurrentInputFileUploadsToolsContextSeparately(t *testing.T) {
 	h := &openAITestSurface{
 		Store: mockOpenAIConfig{
 			currentInputEnabled: true,
+			currentInputMode:    "upload_file",
 			currentInputMin:     0,
 		},
 		DS: ds,
@@ -458,6 +500,7 @@ func TestApplyCurrentInputFileCarriesHistoryText(t *testing.T) {
 	h := &openAITestSurface{
 		Store: mockOpenAIConfig{
 			currentInputEnabled: true,
+			currentInputMode:    "upload_file",
 		},
 		DS: ds,
 	}
@@ -490,6 +533,7 @@ func TestChatCompletionsCurrentInputFileUploadsContextAndKeepsNeutralPrompt(t *t
 	h := &openAITestSurface{
 		Store: mockOpenAIConfig{
 			currentInputEnabled: true,
+			currentInputMode:    "upload_file",
 		},
 		Auth: streamStatusAuthStub{},
 		DS:   ds,
@@ -560,6 +604,7 @@ func TestResponsesCurrentInputFileUploadsContextAndKeepsNeutralPrompt(t *testing
 	h := &openAITestSurface{
 		Store: mockOpenAIConfig{
 			currentInputEnabled: true,
+			currentInputMode:    "upload_file",
 		},
 		Auth: streamStatusAuthStub{},
 		DS:   ds,
@@ -615,6 +660,7 @@ func TestResponsesCurrentInputFileUploadsToolsSeparately(t *testing.T) {
 	h := &openAITestSurface{
 		Store: mockOpenAIConfig{
 			currentInputEnabled: true,
+			currentInputMode:    "upload_file",
 		},
 		Auth: streamStatusAuthStub{},
 		DS:   ds,
@@ -680,6 +726,7 @@ func TestChatCompletionsCurrentInputFileMapsManagedAuthFailureTo401(t *testing.T
 	h := &openAITestSurface{
 		Store: mockOpenAIConfig{
 			currentInputEnabled: true,
+			currentInputMode:    "upload_file",
 		},
 		Auth: streamStatusManagedAuthStub{},
 		DS:   ds,
@@ -711,6 +758,7 @@ func TestResponsesCurrentInputFileMapsDirectAuthFailureTo401(t *testing.T) {
 	h := &openAITestSurface{
 		Store: mockOpenAIConfig{
 			currentInputEnabled: true,
+			currentInputMode:    "upload_file",
 		},
 		Auth: streamStatusAuthStub{},
 		DS:   ds,
@@ -742,6 +790,7 @@ func TestChatCompletionsCurrentInputFileUploadFailureReturnsInternalServerError(
 	h := &openAITestSurface{
 		Store: mockOpenAIConfig{
 			currentInputEnabled: true,
+			currentInputMode:    "upload_file",
 		},
 		Auth: streamStatusAuthStub{},
 		DS:   ds,
@@ -771,6 +820,7 @@ func TestCurrentInputFileWorksAcrossAutoDeleteModes(t *testing.T) {
 				Store: mockOpenAIConfig{
 					autoDeleteMode:      mode,
 					currentInputEnabled: true,
+					currentInputMode:    "upload_file",
 				},
 				Auth: streamStatusAuthStub{},
 				DS:   ds,

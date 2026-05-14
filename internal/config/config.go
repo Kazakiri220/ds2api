@@ -169,8 +169,22 @@ type AutoDeleteConfig struct {
 }
 
 type CurrentInputFileConfig struct {
-	Enabled  *bool `json:"enabled,omitempty"`
-	MinChars int   `json:"min_chars,omitempty"`
+	Enabled  *bool  `json:"enabled,omitempty"`
+	Mode     string `json:"mode,omitempty"`
+	MinChars int    `json:"min_chars,omitempty"`
+}
+
+const (
+	CurrentInputFileModeInlineText = "inline_text"
+	CurrentInputFileModeUploadFile = "upload_file"
+)
+
+func NormalizeCurrentInputFileMode(mode string) string {
+	mode = strings.ToLower(strings.TrimSpace(mode))
+	if mode == "" {
+		return CurrentInputFileModeInlineText
+	}
+	return mode
 }
 
 type ThinkingInjectionConfig struct {

@@ -360,6 +360,7 @@ func TestChatCompletionsCurrentInputFilePersistsNeutralPrompt(t *testing.T) {
 	h := &Handler{
 		Store: mockOpenAIConfig{
 			currentInputEnabled: true,
+			currentInputMode:    "upload_file",
 		},
 		Auth:        streamStatusAuthStub{},
 		DS:          ds,

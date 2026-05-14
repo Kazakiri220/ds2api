@@ -115,6 +115,11 @@ func ValidateAutoDeleteConfig(autoDelete AutoDeleteConfig) error {
 }
 
 func ValidateCurrentInputFileConfig(currentInputFile CurrentInputFileConfig) error {
+	switch NormalizeCurrentInputFileMode(currentInputFile.Mode) {
+	case CurrentInputFileModeInlineText, CurrentInputFileModeUploadFile:
+	default:
+		return fmt.Errorf("current_input_file.mode must be one of inline_text, upload_file")
+	}
 	if currentInputFile.MinChars != 0 {
 		return ValidateIntRange("current_input_file.min_chars", currentInputFile.MinChars, 1, 100000000, true)
 	}

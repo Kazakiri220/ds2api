@@ -25,6 +25,7 @@ type fakeDeepSeekCaller struct {
 type currentInputRuntimeConfig struct{}
 
 func (currentInputRuntimeConfig) CurrentInputFileEnabled() bool { return true }
+func (currentInputRuntimeConfig) CurrentInputFileMode() string  { return "upload_file" }
 func (currentInputRuntimeConfig) CurrentInputFileMinChars() int { return 0 }
 
 func (f *fakeDeepSeekCaller) CreateSession(_ context.Context, a *auth.RequestAuth, _ int) (string, error) {

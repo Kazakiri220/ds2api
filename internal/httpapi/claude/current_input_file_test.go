@@ -22,6 +22,7 @@ type claudeHistoryConfig struct {
 
 func (m claudeHistoryConfig) ModelAliases() map[string]string { return m.aliases }
 func (claudeHistoryConfig) CurrentInputFileEnabled() bool     { return false }
+func (claudeHistoryConfig) CurrentInputFileMode() string      { return "inline_text" }
 func (claudeHistoryConfig) CurrentInputFileMinChars() int     { return 0 }
 
 func (claudeCurrentInputAuth) Determine(*http.Request) (*auth.RequestAuth, error) {
@@ -113,7 +114,7 @@ func TestClaudeDirectAppliesCurrentInputFile(t *testing.T) {
 	ds := &claudeCurrentInputDS{}
 	historyStore := chathistory.New(filepath.Join(t.TempDir(), "history.json"))
 	h := &Handler{
-		Store:       mockClaudeConfig{aliases: map[string]string{"claude-sonnet-4-6": "deepseek-v4-flash"}},
+		Store:       mockClaudeConfig{aliases: map[string]string{"claude-sonnet-4-6": "deepseek-v4-flash"}, currentInputMode: "upload_file"},
 		Auth:        claudeCurrentInputAuth{},
 		DS:          ds,
 		ChatHistory: historyStore,
@@ -164,7 +165,7 @@ func TestClaudeDirectAppliesCurrentInputFile(t *testing.T) {
 func TestClaudeCurrentInputFileUploadsToolsSeparately(t *testing.T) {
 	ds := &claudeCurrentInputDS{}
 	h := &Handler{
-		Store: mockClaudeConfig{aliases: map[string]string{"claude-sonnet-4-6": "deepseek-v4-flash"}},
+		Store: mockClaudeConfig{aliases: map[string]string{"claude-sonnet-4-6": "deepseek-v4-flash"}, currentInputMode: "upload_file"},
 		Auth:  claudeCurrentInputAuth{},
 		DS:    ds,
 	}

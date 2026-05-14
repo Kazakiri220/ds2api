@@ -774,7 +774,7 @@ data: {"type":"message_stop"}
 - `runtime`（`account_max_inflight`、`account_max_queue`、`global_max_inflight`、`token_refresh_interval_hours`）
 - `responses` / `embeddings`
 - `auto_delete`（`mode`：`none` / `single` / `all`；旧配置 `sessions=true` 仍按 `all` 处理）
-- `current_input_file`（`enabled` 默认返回 `true`、`min_chars`）
+- `current_input_file`（`enabled` 默认返回 `true`、`mode` 默认返回 `inline_text`、`min_chars`）
 - `thinking_injection`（`enabled` 默认返回 `true`、`prompt`、`default_prompt`）
 - `model_aliases`
 - `env_backed`、`needs_vercel_sync`
@@ -789,7 +789,7 @@ data: {"type":"message_stop"}
 - `responses.store_ttl_seconds`
 - `embeddings.provider`
 - `auto_delete.mode`
-- `current_input_file.enabled` / `current_input_file.min_chars`
+- `current_input_file.enabled` / `current_input_file.mode` / `current_input_file.min_chars`
 - `thinking_injection.enabled` / `thinking_injection.prompt`
 - `model_aliases`
 - `toolcall` 策略已固定，不再作为可写入字段

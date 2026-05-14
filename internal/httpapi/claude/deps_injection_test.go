@@ -3,11 +3,13 @@ package claude
 import "testing"
 
 type mockClaudeConfig struct {
-	aliases map[string]string
+	aliases          map[string]string
+	currentInputMode string
 }
 
 func (m mockClaudeConfig) ModelAliases() map[string]string { return m.aliases }
 func (mockClaudeConfig) CurrentInputFileEnabled() bool     { return true }
+func (m mockClaudeConfig) CurrentInputFileMode() string    { return m.currentInputMode }
 func (mockClaudeConfig) CurrentInputFileMinChars() int     { return 0 }
 
 func TestNormalizeClaudeRequestUsesGlobalAliasMapping(t *testing.T) {

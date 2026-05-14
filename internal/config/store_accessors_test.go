@@ -10,11 +10,17 @@ func TestStoreCurrentInputFileAccessors(t *testing.T) {
 	if got := store.CurrentInputFileMinChars(); got != 0 {
 		t.Fatalf("default current input file min_chars=%d want=0", got)
 	}
+	if got := store.CurrentInputFileMode(); got != "inline_text" {
+		t.Fatalf("default current input file mode=%q want inline_text", got)
+	}
 
 	enabled := false
-	store.cfg.CurrentInputFile = CurrentInputFileConfig{Enabled: &enabled, MinChars: 12345}
+	store.cfg.CurrentInputFile = CurrentInputFileConfig{Enabled: &enabled, Mode: "upload_file", MinChars: 12345}
 	if store.CurrentInputFileEnabled() {
 		t.Fatal("expected current input file disabled")
+	}
+	if got := store.CurrentInputFileMode(); got != "upload_file" {
+		t.Fatalf("current input file mode=%q want upload_file", got)
 	}
 
 	enabled = true

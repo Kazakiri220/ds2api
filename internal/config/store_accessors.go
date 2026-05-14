@@ -154,6 +154,12 @@ func (s *Store) CurrentInputFileEnabled() bool {
 	return *s.cfg.CurrentInputFile.Enabled
 }
 
+func (s *Store) CurrentInputFileMode() string {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return NormalizeCurrentInputFileMode(s.cfg.CurrentInputFile.Mode)
+}
+
 func (s *Store) CurrentInputFileMinChars() int {
 	s.mu.RLock()
 	defer s.mu.RUnlock()

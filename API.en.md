@@ -768,7 +768,7 @@ Reads runtime settings and status, including:
 - `runtime` (`account_max_inflight`, `account_max_queue`, `global_max_inflight`, `token_refresh_interval_hours`)
 - `responses` / `embeddings`
 - `auto_delete` (`mode`: `none` / `single` / `all`; legacy `sessions=true` is still treated as `all`)
-- `current_input_file` (`enabled` defaults to `true`, plus `min_chars`)
+- `current_input_file` (`enabled` defaults to `true`, `mode` defaults to `inline_text`, plus `min_chars`)
 - `thinking_injection` (`enabled` defaults to `true`, `prompt`, and `default_prompt`)
 - `model_aliases`
 - `env_backed`, `needs_vercel_sync`
@@ -783,7 +783,7 @@ Hot-updates runtime settings. Supported fields:
 - `responses.store_ttl_seconds`
 - `embeddings.provider`
 - `auto_delete.mode`
-- `current_input_file.enabled` / `current_input_file.min_chars`
+- `current_input_file.enabled` / `current_input_file.mode` / `current_input_file.min_chars`
 - `thinking_injection.enabled` / `thinking_injection.prompt`
 - `model_aliases`
 - `toolcall` policy is fixed and is no longer writable through settings
